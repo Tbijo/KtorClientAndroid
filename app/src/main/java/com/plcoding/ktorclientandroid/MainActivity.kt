@@ -21,17 +21,20 @@ import com.plcoding.ktorclientandroid.ui.theme.KtorClientAndroidTheme
 
 class MainActivity : ComponentActivity() {
 
+    // Use dependency in a ViewModel
     private val service = PostsService.create()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
             val posts = produceState<List<PostResponse>>(
                 initialValue = emptyList(),
                 producer = {
                     value = service.getPosts()
                 }
             )
+
             KtorClientAndroidTheme {
                 Surface(color = MaterialTheme.colors.background) {
                     LazyColumn {
@@ -42,7 +45,9 @@ class MainActivity : ComponentActivity() {
                                     .padding(16.dp)
                             ) {
                                 Text(text = it.title, fontSize = 20.sp)
+
                                 Spacer(modifier = Modifier.height(4.dp))
+
                                 Text(text = it.body, fontSize = 14.sp)
                             }
                         }

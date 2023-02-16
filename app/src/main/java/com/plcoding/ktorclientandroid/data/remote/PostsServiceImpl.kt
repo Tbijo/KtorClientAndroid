@@ -14,19 +14,21 @@ class PostsServiceImpl(
     override suspend fun getPosts(): List<PostResponse> {
         return try {
             client.get { url(HttpRoutes.POSTS) }
-        } catch(e: RedirectResponseException) {
+        } catch (e: RedirectResponseException) {
             // 3xx - responses
             println("Error: ${e.response.status.description}")
             emptyList()
-        } catch(e: ClientRequestException) {
+        } catch (e: ClientRequestException) {
             // 4xx - responses
+            // we post data that the server cannot use
             println("Error: ${e.response.status.description}")
             emptyList()
-        } catch(e: ServerResponseException) {
-            // 5xx - responses
+        } catch (e: ServerResponseException) {
+            // 5xx - responses, internal server error
+            // client side was ok but there was error on the server side (db crash)
             println("Error: ${e.response.status.description}")
             emptyList()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             println("Error: ${e.message}")
             emptyList()
         }
@@ -34,24 +36,27 @@ class PostsServiceImpl(
 
     override suspend fun createPost(postRequest: PostRequest): PostResponse? {
         return try {
+            // we need to specify a type of the post response, what the server will respond with
             client.post<PostResponse> {
                 url(HttpRoutes.POSTS)
+                // attach header
                 contentType(ContentType.Application.Json)
+                // attach body
                 body = postRequest
             }
-        } catch(e: RedirectResponseException) {
+        } catch (e: RedirectResponseException) {
             // 3xx - responses
             println("Error: ${e.response.status.description}")
             null
-        } catch(e: ClientRequestException) {
+        } catch (e: ClientRequestException) {
             // 4xx - responses
             println("Error: ${e.response.status.description}")
             null
-        } catch(e: ServerResponseException) {
+        } catch (e: ServerResponseException) {
             // 5xx - responses
             println("Error: ${e.response.status.description}")
             null
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             println("Error: ${e.message}")
             null
         }
